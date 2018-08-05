@@ -13,7 +13,7 @@ if len(sys.argv) != 2:
 	print("\nusage: python simple-text-scroll-rotated.py \"message\" \npress CTRL-C to exit\n")
 	sys.exit(0)
 
-def scroll(text):
+def scrollText(text):
 	sphd.clear()
 	sphd.write_string(text, 11)
 	while True:
@@ -23,7 +23,9 @@ def scroll(text):
 
 if __name__ == '__main__':
 	#Start scroll process
-	scrollProcess = Process(target=scroll, args=sys.argv[1])
+	text = sys.argv[1]
+	print("%s" % text)
+	scrollProcess = Process(target=scrollText, args=text)
 	scrollProcess.start()
 
 	sleep(5)
