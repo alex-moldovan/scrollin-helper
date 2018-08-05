@@ -11,13 +11,17 @@ if len(sys.argv) != 2:
     print("\nusage: python simple-text-scroll-rotated.py \"message\" \npress CTRL-C to exit\n")
     sys.exit(0)
 
-scrollphat.set_rotate(True)
+#The screen is rotated on my robot case.
+scrollphat.rotate(180)
+
+
 scrollphat.write_string(sys.argv[1], 11)
 
 while True:
     try:
-        scrollphat.scroll()
-        time.sleep(0.1)
+    	scrollphat.show()
+        scrollphat.scroll(1)
+        time.sleep(0.05)
     except KeyboardInterrupt:
         scrollphat.clear()
 sys.exit(-1)
