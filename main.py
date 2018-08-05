@@ -2,26 +2,26 @@
 
 import sys
 import time
-import scrollphat
+import scrollphathd as sphd
 
 
-scrollphat.set_brightness(2)
+sphd.set_brightness(1.0)
 
 if len(sys.argv) != 2:
     print("\nusage: python simple-text-scroll-rotated.py \"message\" \npress CTRL-C to exit\n")
     sys.exit(0)
 
 #The screen is rotated on my robot case.
-scrollphat.rotate(180)
+sphd.rotate(180)
 
 
-scrollphat.write_string(sys.argv[1], 11)
+sphd.write_string(sys.argv[1], 11)
 
 while True:
     try:
-    	scrollphat.show()
-        scrollphat.scroll(1)
+    	sphd.show()
+        sphd.scroll(1)
         time.sleep(0.05)
     except KeyboardInterrupt:
-        scrollphat.clear()
-sys.exit(-1)
+        sphd.clear()
+sys.exit()
