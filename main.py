@@ -8,8 +8,8 @@ from fbchat import Client, log
 from fbchat.models import *
 
 # ChatBot account login
-facebookUsername = "<user>"
-facebookPassword = "<pass>"
+facebookUsername = "<>"
+facebookPassword = "<>"
 # A 2FA prompt will be shown if it's enabled on Facebook.
 
 # Might want to use this without a Scroll pHAT HD)
@@ -68,18 +68,16 @@ class DeskBot(Client):
 		msg = "%s" % message_object.text
 		msg = msg.lower()
 		
-		if thread_id not in userStatus:
-			userStatus[thread_id] = 0
+		if thread_id not in self.userStatus:
+			self.userStatus[thread_id] = 0
 
 		if "ohanes" in msg:
 			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=thread_type)
-			try:
-				if scrollProcess is not None:
-					stopProcess(self.scrollProcess)
-			except:
-				pass
 			
-			scrollProcess = startProcess(scrollText, ["_ _ _ _   _ _ _"])
+			if self.scrollProcess is not None:
+				stopProcess(self.scrollProcess)
+			
+			self.scrollProcess = startProcess(scrollText, ["_ _ _ _   _ _ _"])
 
 		if "time" in msg:
 			self.send(Message(text=dateTime["time"]), thread_id=thread_id, thread_type=thread_type)
@@ -90,7 +88,8 @@ def scrollText(text, dateTime=None):
 	while True:
 		sphd.show()
 		sphd.scroll(1)
-		time.sleep(0.02)
+		time.sleep(0.015)
+                # Update clock time
 		if dateTime is not None and text != dateTime['time']:
 			scrollText(dateTime['time'], dateTime)
 
@@ -116,6 +115,7 @@ if __name__ == '__main__':
 			client = DeskBot(facebookUsername, facebookPassword, dateTime)
 			client.listen()
 		except (KeyboardInterrupt, SystemExit):
+                        print("Going to sleep")
 			stopProcess(clockProcess)
 			stopProcess(client.scrollProcess)
 			sys.exit()
