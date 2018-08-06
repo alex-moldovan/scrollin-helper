@@ -88,9 +88,9 @@ def scrollText(text, dateTime=None):
 	sphd.clear()
 	sphd.write_string(text, 10)
 	while True:
-	sphd.show()
-	sphd.scroll(1)
-	time.sleep(0.02)
+		sphd.show()
+		sphd.scroll(1)
+		time.sleep(0.02)
 		if dateTime is not None and text != dateTime['time']:
 			scrollText(dateTime['time'], dateTime)
 
