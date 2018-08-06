@@ -5,6 +5,8 @@ from fbchat import Client, log
 from fbchat.models import *
 import time
 
+from botuser import *
+
 try:
 	import scrollphathd as sphd
 except:
@@ -42,8 +44,11 @@ class DeskBot(Client):
 
 		publishToRobot = True if (self.useRobot and user.isAdmin) else False
 
+                if publishToRobot:
+                    print("Should publish")
+
 		if "ohanes" in msg:
-			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=threadType)
+			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=thread_type)
 			
 			if publishToRobot:
 				# Clear what's currently displayed on the screen
@@ -53,7 +58,7 @@ class DeskBot(Client):
 				self.scrollProcess = startProcess(scrollText, ["_ _ _ _   _ _ _"])
 
 		if "time" in msg:
-			self.send(Message(text=dateTime["time"]), thread_id=thread_id, thread_type=threadType)
+			self.send(Message(text=self.dateTime["time"]), thread_id=thread_id, thread_type=thread_type)
 
 # Time-keeper thread, updates clock globally every 5 seconds.
 def updateClock(dateTime):

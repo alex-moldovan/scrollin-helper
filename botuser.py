@@ -12,4 +12,4 @@ class BotUser():
 
 		self.isAdmin = True	if (botConfig["adminID"] is not None and userID != botConfig["adminID"]) else False
 
-		print("Created user %d with thread %d" % (userID, threadID))
+		print("Created user %s with thread %s" % (userID, threadID))
