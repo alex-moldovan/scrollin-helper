@@ -26,24 +26,24 @@ class DeskBot(Client):
 
 		client = Client.__init__(self, email, password)
 
-	def onMessage(self, authorID, messageObject, threadID, threadType, **kwargs):
+	def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
 		# Heartbeat
-		self.markAsDelivered(threadID, messageObject.uid)
-		self.markAsRead(threadID)
+		self.markAsDelivered(thread_id, message_object.uid)
+		self.markAsRead(thread_id)
 
-		msg = ("%s".lower()) % messageObject.text
+		msg = ("%s".lower()) % message_object.text
 		
 		user = None
-		if authorID in self.users:
-			user = self.users[authorID]
+		if author_id in self.users:
+			user = self.users[author_id]
 		else:
-			user = BotUser(authorID, threadID)
-			self.users[authorID] = user
+			user = BotUser(author_id, thread_id)
+			self.users[author_id] = user
 
 		publishToRobot = True if (self.useRobot and user.isAdmin) else False
 
 		if "ohanes" in msg:
-			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=threadID, thread_type=threadType)
+			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=threadType)
 			
 			if publishToRobot:
 				# Clear what's currently displayed on the screen
@@ -53,7 +53,7 @@ class DeskBot(Client):
 				self.scrollProcess = startProcess(scrollText, ["_ _ _ _   _ _ _"])
 
 		if "time" in msg:
-			self.send(Message(text=dateTime["time"]), thread_id=threadID, thread_type=threadType)
+			self.send(Message(text=dateTime["time"]), thread_id=thread_id, thread_type=threadType)
 
 # Time-keeper thread, updates clock globally every 5 seconds.
 def updateClock(dateTime):
