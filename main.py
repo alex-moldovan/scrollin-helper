@@ -4,9 +4,9 @@ import sys
 import time
 from multiprocessing import Manager
 
-import botconfig
-import botuser
-import bot
+from botconfig import *
+from botuser import *
+from bot import *
 
 # ChatBot account login
 # A 2FA prompt will be shown if it's enabled on Facebook.

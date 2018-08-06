@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import botconfig
+from botconfig import *
 
 class BotUser():
 	def __init__(self, userID, threadID):
