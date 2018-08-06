@@ -7,98 +7,115 @@ import logging
 from fbchat import Client, log
 from fbchat.models import *
 
+# ChatBot account login
+facebookUsername = "<user>"
+facebookPassword = "<pass>"
+# A 2FA prompt will be shown if it's enabled on Facebook.
+
+# Might want to use this without a Scroll pHAT HD)
 useRobot = True
 try:
-    import scrollphathd as sphd
+	import scrollphathd as sphd
 except:
-    useRobot = False
+	useRobot = False
 
 if useRobot:
-    #The screen is installed upside down on my robot case.
-    sphd.rotate(180)
-    sphd.set_brightness(1.0)
+	#The screen is installed upside down on my robot case.
+	sphd.rotate(180)
+	sphd.set_brightness(1.0)
 
-    scrollProcess = None
+	scrollProcess = None
+
+# Time-keeper thread, updates clock globally every 5 seconds.
+def updateClock(dateTime):
+	dateTime['time'] = time.strftime("%H:%M")
+	dateTime['datetime'] = time.strftime("%H:%M")
+	dateTime['date'] = time.strftime("%H:%M")
+	time.sleep(5)
+	updateClock(dateTime)
+
+# Basic multi-processing
+def startProcess(targetFunction, functionArguments):
+	process = Process(target=targetFunction, args=functionArguments)
+	process.start()
+	
+	return process
+
+def stopProcess(process):
+	if process is not None:
+		process.terminate()
+		process.join()
+
+	if useRobot:
+		clearText()
 
 class DeskBot(Client):
-    def __init__(self, email, password, dateTime):
-        if useRobot:
-            scrollProcess = None
+	def __init__(self, email, password, dateTime):
+		
+		self.scrollProcess = None
+		self.dateTime = dateTime
 
-        self.dateTime = dateTime
-        
-        client = Client.__init__(self, email, password)
+		self.userStatus = {}
 
-    def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
-        self.markAsDelivered(thread_id, message_object.uid)
-        self.markAsRead(thread_id)
-        msg = "%s" % message_object.text
-        msg = msg.lower()
-        #log.info("{} from {} in {}".format(message_object, thread_id, thread_type.name))
+		client = Client.__init__(self, email, password)
 
-        print(message_object)
+	def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
+		# Heartbeat
+		self.markAsDelivered(thread_id, message_object.uid)
+		self.markAsRead(thread_id)
+		
 
-        if author_id != self.uid:
-            if "ohanes" in msg:
-                self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=thread_type)
-                try:
-                    if scrollProcess is not None:
-                        stopProcess(self.scrollProcess)
-                except:
-                    pass
-                
-                scrollProcess = createProcess(scrollText, ["Muie PSD"])
+		msg = "%s" % message_object.text
+		msg = msg.lower()
+		
+		if thread_id not in userStatus:
+			userStatus[thread_id] = 0
 
-            if "time" in msg:
-                self.send(Message(text=dateTime["time"]), thread_id=thread_id, thread_type=thread_type)
+		if "ohanes" in msg:
+			self.send(Message(text="_ _ _ _   _ _ _"), thread_id=thread_id, thread_type=thread_type)
+			try:
+				if scrollProcess is not None:
+					stopProcess(self.scrollProcess)
+			except:
+				pass
+			
+			scrollProcess = startProcess(scrollText, ["_ _ _ _   _ _ _"])
 
-def updateClock(dateTime):
-    dateTime['time'] = time.strftime("%H:%M")
-    dateTime['datetime'] = time.strftime("%H:%M")
-    dateTime['date'] = time.strftime("%H:%M")
-    time.sleep(2)
-    updateClock(dateTime)
+		if "time" in msg:
+			self.send(Message(text=dateTime["time"]), thread_id=thread_id, thread_type=thread_type)
 
 def scrollText(text, dateTime=None):
-    sphd.clear()
-    sphd.write_string(text, 10)
-    while True:
+	sphd.clear()
+	sphd.write_string(text, 10)
+	while True:
 	sphd.show()
 	sphd.scroll(1)
 	time.sleep(0.02)
-        if dateTime is not None and text != dateTime['time']:
-            scrollText(dateTime['time'], dateTime)
+		if dateTime is not None and text != dateTime['time']:
+			scrollText(dateTime['time'], dateTime)
 
 def clearText():
-    sphd.clear()
-    sphd.show()
+	sphd.clear()
+	sphd.show()
 
 def showClock(dateTime):
-    scrollText(dateTime['time'], dateTime)   
-
-def createProcess(targetFunction, functionArguments):
-    scrollProcess = Process(target=targetFunction, args=functionArguments)
-    scrollProcess.start()
-    
-    return scrollProcess
-
-def stopProcess(process):
-    process.terminate()
-    process.join()
-    clearText()
+	scrollText(dateTime['time'], dateTime)   
 
 if __name__ == '__main__':
+	with Manager() as manager:
+		# Time keeping thread
+		dateTime = manager.dict()
+		clockProcess = startProcess(updateClock, [dateTime])
 
-        with Manager() as manager:
-            # Time keeping thread
-            dateTime = manager.dict()
-            clockProcess = createProcess(updateClock, [dateTime])
+		# Initial screen clear
+		if useRobot:
+			clearText()
 
-            # Initial clear
-            if useRobot:
-                clearText()
-
-            client = DeskBot("<user>", "<password>", dateTime)
-            client.listen()
-
-        sys.exit()
+		# ChatBot client
+		try:
+			client = DeskBot(facebookUsername, facebookPassword, dateTime)
+			client.listen()
+		except (KeyboardInterrupt, SystemExit):
+			stopProcess(clockProcess)
+			stopProcess(client.scrollProcess)
+			sys.exit()
